@@ -1,0 +1,5 @@
+.DS_Store
+outputs/
+weeks-service-manager-prototype/
+weeks-proposal-pitch/assets/*.png
+!weeks-proposal-pitch/assets/weeks-logo-crop.png

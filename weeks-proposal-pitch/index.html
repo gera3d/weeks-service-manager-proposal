@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23080f0a'/%3E%3Cpath d='M4 9.8 7.1 3.5 12 12.5H8.6L7.2 9.8H4Z' fill='%23d2a525'/%3E%3C/svg%3E" />
+  <title>Weeks Service Manager — Proposal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+    :root {
+      --bg: #f3f0e7;
+      --bg-2: #ece7d8;
+      --panel: #ffffff;
+      --panel-2: #f8f6ef;
+      --line: #e2ddcd;
+      --line-2: #d6d0bd;
+      --text: #22251f;
+      --muted: #6c7064;
+      --soft: #485247;
+      --green: #1b463a;
+      --green-2: #27604c;
+      --green-3: #13322a;
+      --gold: #c39329;
+      --gold-2: #e2bd5b;
+      --gold-soft: #f0e3c2;
+      --red: #a93621;
+      --red-bg: #f6e3de;
+      --amber: #9a6a12;
+      --amber-bg: #f6ecd3;
+      --blue: #2c5a6b;
+      --blue-bg: #e0ecf0;
+      --purple: #6b4a7a;
+      --purple-bg: #ece2f0;
+      --display: "Saira Condensed", ui-sans-serif, system-ui, sans-serif;
+      --body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --shadow: 0 20px 60px rgba(19, 50, 42, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      line-height: 1.5;
+    }
+
+    button, a { font: inherit; }
+
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.62), transparent 18%),
+        var(--bg);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(72px);
+      transition: opacity 420ms ease, transform 420ms ease, visibility 420ms ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+
+    .slide.prev { transform: translateX(-72px); }
+
+    .content {
+      width: min(1120px, 100%);
+      max-height: calc(100vh - 160px);
+      text-align: center;
+    }
+
+    .content.wide { width: min(1220px, 100%); }
+    .content.left { text-align: left; }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 0 0 14px;
+      border: 0;
+      border-left: 2px solid var(--gold);
+      border-radius: 0;
+      background: transparent;
+      color: var(--green-2);
+      font-family: var(--display);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 24px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font-family: var(--display);
+      font-size: 66px;
+      line-height: 0.98;
+      letter-spacing: 0.4px;
+      margin-bottom: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--green-3);
+    }
+
+    h2 {
+      font-family: var(--display);
+      font-size: 52px;
+      line-height: 1;
+      letter-spacing: 0.4px;
+      margin-bottom: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--green-3);
+    }
+
+    h3 {
+      font-family: var(--display);
+      font-size: 28px;
+      line-height: 1.16;
+      letter-spacing: 0.3px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+
+    .accent-gold { color: var(--gold); }
+    .accent-green { color: var(--green-2); }
+    .subtitle {
+      max-width: 760px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin-top: 38px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    .meta > div {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .meta span {
+      display: block;
+      color: var(--green-2);
+      font-family: var(--display);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .meta strong {
+      display: block;
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
+      grid-template-rows: auto auto;
+      align-items: center;
+      gap: 46px;
+      text-align: left;
+    }
+
+    .hero-copy {
+      grid-column: 1;
+      grid-row: 1;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-copy h1 { font-size: 56px; }
+
+    .hero-copy .subtitle {
+      max-width: 530px;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .hero-grid > .meta {
+      grid-column: 1;
+      grid-row: 2;
+      margin-top: 0;
+    }
+
+    .mock-frame {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      position: relative;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      overflow: visible;
+      justify-self: end;
+      z-index: 1;
+    }
+
+    .phone-shell {
+      width: min(310px, 26vw);
+      max-width: 310px;
+      aspect-ratio: 390 / 844;
+      border-radius: 46px;
+      padding: 12px;
+      background: linear-gradient(145deg, #1e2420, #050605);
+      border: 1px solid rgba(19, 50, 42, 0.42);
+      box-shadow: 0 26px 68px rgba(19, 50, 42, 0.26), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .phone-screen {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 36px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid rgba(0, 0, 0, 0.18);
+      font-family: var(--body);
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      width: 96px;
+      height: 26px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: #050605;
+      z-index: 4;
+    }
+
+    .phone-app-header {
+      padding: 44px 18px 12px;
+      background: #fff;
+      border-bottom: 3px solid var(--green);
+    }
+
+    .phone-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .phone-brand img {
+      width: 118px;
+      height: auto;
+      border: 1px solid var(--green-2);
+    }
+
+    .phone-app-tag {
+      padding-left: 9px;
+      border-left: 2px solid var(--gold);
+      color: var(--green-2);
+      font-family: var(--display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .phone-tabs {
+      display: grid;
+      grid-template-columns: 1.08fr 0.9fr 0.72fr;
+      gap: 6px;
+      margin-top: 13px;
+    }
+
+    .phone-tabs span {
+      min-height: 30px;
+      border: 1px solid var(--line-2);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--green);
+      background: #fff;
+      font-family: var(--display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .phone-tabs .active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .phone-banner {
+      background: var(--amber-bg);
+      color: var(--amber);
+      padding: 7px 16px;
+      font-size: 9.5px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .phone-main {
+      padding: 20px 16px 18px;
+    }
+
+    .phone-title {
+      font-family: var(--display);
+      color: var(--green-3);
+      font-size: 27px;
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .phone-subtitle {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .phone-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .phone-stat {
+      min-height: 58px;
+      padding: 9px 8px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--line-2);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .phone-stat strong {
+      display: block;
+      font-family: var(--display);
+      font-size: 25px;
+      line-height: 1;
+      color: var(--green);
+    }
+
+    .phone-stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .phone-stat.red { border-left-color: var(--red); }
+    .phone-stat.red strong { color: var(--red); }
+    .phone-stat.gold { border-left-color: var(--amber); }
+    .phone-stat.gold strong { color: var(--amber); }
+    .phone-stat.blue { border-left-color: var(--blue); }
+    .phone-stat.blue strong { color: var(--blue); }
+
+    .phone-note {
+      margin-top: 11px;
+      padding: 9px 10px;
+      border-radius: 7px;
+      background: var(--blue-bg);
+      color: var(--blue);
+      font-size: 10.5px;
+      line-height: 1.35;
+    }
+
+    .phone-filter {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 10px;
+      overflow: hidden;
+    }
+
+    .phone-chip {
+      border: 1px solid var(--line-2);
+      border-radius: 999px;
+      background: #fff;
+      padding: 4px 9px;
+      color: var(--text);
+      white-space: nowrap;
+      font-size: 10px;
+    }
+
+    .phone-chip.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .phone-month {
+      margin-top: 16px;
+      border-radius: 6px;
+      background: var(--bg-2);
+      padding: 7px 10px;
+      color: var(--green-3);
+      font-family: var(--display);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+    }
+
+    .phone-section-label {
+      margin: 10px 0 7px;
+      color: var(--green-2);
+      font-family: var(--display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .phone-service-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 9px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(19, 50, 42, 0.05);
+    }
+
+    .phone-service-row b {
+      display: block;
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .phone-pill {
+      display: inline-flex;
+      margin-left: 5px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: var(--red-bg);
+      color: var(--red);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      vertical-align: 1px;
+    }
+
+    .phone-address {
+      margin-top: 5px;
+      color: var(--green-2);
+      font-family: var(--mono);
+      font-size: 9.5px;
+      line-height: 1.35;
+    }
+
+    .phone-row-meta {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 9.5px;
+    }
+
+    .phone-due {
+      margin-top: 5px;
+      color: var(--green-2);
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 600;
+    }
+
+    .phone-action {
+      align-self: start;
+      border: 1px solid var(--line-2);
+      border-radius: 6px;
+      padding: 7px 9px;
+      color: var(--green);
+      background: #fff;
+      font-family: var(--display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .phone-home {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      width: 120px;
+      height: 4px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: rgba(19, 50, 42, 0.4);
+    }
+
+    .mock-caption {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 4px 2px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status-pill {
+      white-space: nowrap;
+      border: 1px solid rgba(88, 199, 131, 0.5);
+      color: var(--green-2);
+      background: rgba(47, 154, 85, 0.11);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+    }
+
+    .grid-2, .grid-3, .grid-4 {
+      display: grid;
+      gap: 16px;
+      margin-top: 34px;
+      text-align: left;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 24px;
+      box-shadow: 0 4px 14px rgba(19, 50, 42, 0.08);
+      border-top: 4px solid var(--green-2);
+    }
+
+    .card strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.25;
+      margin-bottom: 9px;
+    }
+
+    .card p, .card li {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .card ul {
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .card li {
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .card li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.66em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .mini-label {
+      display: block;
+      color: var(--green-2);
+      font-family: var(--display);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      margin-bottom: 10px;
+    }
+
+    .quote {
+      margin: 32px auto 0;
+      max-width: 880px;
+      text-align: left;
+      border-left: 4px solid var(--gold);
+      background: var(--panel);
+      padding: 26px 32px;
+      border-radius: 0 8px 8px 0;
+      box-shadow: var(--shadow);
+    }
+
+    .quote p {
+      color: var(--soft);
+      font-size: 21px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .quote small { color: var(--muted); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 34px;
+      text-align: left;
+    }
+
+    .flow-step {
+      position: relative;
+      min-height: 180px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel);
+    }
+
+    .flow-step span {
+      display: inline-flex;
+      width: 28px;
+      height: 28px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #10110d;
+      font-size: 13px;
+      font-weight: 850;
+      margin-bottom: 16px;
+    }
+
+    .flow-step strong { display: block; font-size: 17px; margin-bottom: 8px; }
+    .flow-step p { color: var(--muted); font-size: 13px; margin: 0; }
+
+    .phase-card {
+      margin-top: 30px;
+      text-align: left;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .phase-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 28px;
+      padding: 30px;
+      border-top: 4px solid var(--gold);
+    }
+
+    .phase-kicker {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .phase-title { font-size: 30px; font-weight: 820; }
+    .phase-desc { color: var(--muted); max-width: 720px; margin: 12px 0 0; }
+
+    .phase-price { text-align: right; min-width: 210px; }
+    .price { font-size: 34px; font-weight: 850; line-height: 1.05; }
+    .timeline { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+    .deliverables {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 0 30px 30px;
+    }
+
+    .deliverable {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: var(--soft);
+      font-size: 14px;
+    }
+
+    .check {
+      color: var(--green-2);
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .pricing-table {
+      margin-top: 34px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      overflow: hidden;
+      text-align: left;
+      background: var(--panel);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 0.75fr 0.8fr;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .pricing-table.compact { margin-top: 20px; }
+    .pricing-table.compact .row { padding: 12px 20px; }
+
+    .row:last-child { border-bottom: 0; }
+    .row.head {
+      color: var(--muted);
+      background: var(--bg-2);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 850;
+    }
+    .row.total {
+      background: linear-gradient(90deg, rgba(47, 154, 85, 0.15), rgba(210, 165, 37, 0.12));
+      font-weight: 850;
+    }
+
+    .tag {
+      display: inline-flex;
+      width: fit-content;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 850;
+      color: var(--green-2);
+      background: #dfeae0;
+      border: 1px solid rgba(39, 96, 76, 0.22);
+    }
+
+    .tag.gold {
+      color: #8a6a14;
+      background: var(--gold-soft);
+      border-color: rgba(195, 147, 41, 0.35);
+    }
+
+    .closeout {
+      margin-top: 30px;
+      text-align: left;
+      display: grid;
+      gap: 16px;
+    }
+
+    .close-price {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+      padding: 28px 30px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--gold);
+      border-radius: 9px;
+      box-shadow: var(--shadow);
+    }
+
+    .close-price strong {
+      display: block;
+      color: var(--green-3);
+      font-family: var(--display);
+      font-size: 29px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .close-price p {
+      color: var(--muted);
+      margin: 9px 0 0;
+      max-width: 660px;
+      font-size: 15px;
+    }
+
+    .close-price .price {
+      color: var(--green-3);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .close-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .close-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 18px;
+      border-top: 4px solid var(--green-2);
+    }
+
+    .close-card span {
+      display: block;
+      color: var(--green-2);
+      font-family: var(--display);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .close-card strong {
+      display: block;
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.25;
+      margin-bottom: 7px;
+    }
+
+    .close-card p {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .close-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--line);
+    }
+
+    .close-strip div {
+      background: var(--panel);
+      padding: 14px 16px;
+    }
+
+    .close-strip span {
+      display: block;
+      color: var(--gold);
+      font-family: var(--display);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .close-strip strong {
+      color: var(--green-3);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .cta-row {
+      margin-top: 36px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      border-radius: 7px;
+      padding: 0 28px;
+      text-decoration: none;
+      border: 1px solid var(--line-2);
+      color: var(--text);
+      background: var(--panel);
+      font-family: var(--display);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn.primary {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #10110d;
+    }
+
+    .note {
+      max-width: 840px;
+      margin: 26px auto 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .nav {
+      position: fixed;
+      left: 50%;
+      bottom: 34px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 11px;
+      z-index: 20;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border: 0;
+      border-radius: 50%;
+      padding: 0;
+      background: var(--line-2);
+      cursor: pointer;
+      transition: background 180ms ease, transform 180ms ease;
+    }
+
+    .dot.active {
+      background: var(--gold);
+      transform: scale(1.18);
+    }
+
+    .arrows {
+      position: fixed;
+      right: 40px;
+      bottom: 24px;
+      z-index: 20;
+      display: flex;
+      gap: 12px;
+    }
+
+    .arrow {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 1px solid var(--line-2);
+      background: var(--panel);
+      color: var(--green);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .arrow svg { width: 22px; height: 22px; }
+    .arrow:hover { border-color: var(--gold); background: #fff; transform: translateY(-1px); }
+    .arrow:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    .counter {
+      position: fixed;
+      left: 40px;
+      bottom: 41px;
+      z-index: 20;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .progress {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: var(--line);
+      z-index: 20;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--green), var(--gold));
+      transition: width 220ms ease;
+    }
+
+    @media (max-width: 980px) {
+      .slide { padding: 34px; }
+      .content { max-height: calc(100vh - 132px); overflow: auto; padding-bottom: 12px; }
+      h1 { font-size: 48px; }
+      h2 { font-size: 40px; }
+      .subtitle { font-size: 18px; }
+      .hero-grid, .grid-2, .grid-3, .grid-4, .flow { grid-template-columns: 1fr; }
+      .hero-copy h1 { font-size: 46px; }
+      .hero-copy,
+      .mock-frame,
+      .hero-grid > .meta {
+        grid-column: 1;
+        grid-row: auto;
+      }
+      .mock-frame { max-width: 620px; margin: 0 auto; }
+      .phase-top, .row { grid-template-columns: 1fr; }
+      .phase-price { text-align: left; }
+      .deliverables { grid-template-columns: 1fr; }
+      .close-price,
+      .close-grid,
+      .close-strip { grid-template-columns: 1fr; }
+      .close-price .price { text-align: left; }
+      .meta { gap: 24px; flex-wrap: wrap; }
+      .nav { display: none; }
+    }
+
+    @media (max-width: 620px) {
+      html, body {
+        height: auto;
+        min-height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+      .deck { height: auto; min-height: 100vh; overflow: visible; }
+      .slide {
+        position: relative;
+        display: none;
+        min-height: 100vh;
+        padding: 28px 20px 112px;
+      }
+      .slide.active { display: flex; }
+      .content { max-height: none; overflow: visible; }
+      .label { font-size: 10px; letter-spacing: 1px; padding: 7px 12px; }
+      h1 { font-size: 36px; }
+      h2 { font-size: 32px; }
+      h3 { font-size: 23px; }
+      .hero-copy h1 { font-size: 34px; }
+      .subtitle { font-size: 16px; }
+      .meta { justify-content: flex-start; text-align: left; }
+      .phone-shell {
+        width: min(198px, 51vw);
+      }
+      .phone-brand { gap: 6px; }
+      .phone-brand img { width: 104px; }
+      .phone-app-tag { font-size: 8.5px; letter-spacing: 0.8px; padding-left: 7px; }
+      .phone-tabs { gap: 4px; }
+      .phone-tabs span { font-size: 8.5px; min-height: 28px; }
+      .phone-main { padding: 18px 12px 16px; }
+      .phone-stats { gap: 5px; }
+      .phone-stat { padding: 8px 6px; }
+      .phone-stat strong { font-size: 22px; }
+      .phone-stat span { font-size: 6.8px; letter-spacing: 0.45px; }
+      .phone-service-row { padding: 10px; grid-template-columns: 1fr; }
+      .phone-action { width: fit-content; }
+      .mock-caption { display: none; }
+      .arrows { right: 18px; bottom: 20px; gap: 8px; }
+      .arrow { width: 48px; height: 48px; }
+      .arrow:disabled { display: none; }
+      .counter { left: 20px; bottom: 37px; }
+      .flow-step { min-height: 0; }
+    }
+
+    @media print {
+      html, body { height: auto; overflow: visible; background: var(--bg); }
+      .deck { height: auto; overflow: visible; }
+      .slide {
+        position: relative;
+        visibility: visible;
+        opacity: 1;
+        transform: none;
+        page-break-after: always;
+        min-height: 100vh;
+      }
+      .nav, .arrows, .counter, .progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" aria-live="polite">
+    <section class="slide active">
+      <div class="content wide hero-grid">
+        <div class="hero-copy">
+          <div class="label">Weeks Service Manager — iOS Pilot Proposal</div>
+          <h1>Turn Tyler's <span class="accent-gold">Prototype</span> Into a <span class="accent-green">TestFlight Pilot</span> Weeks Can Use Internally.</h1>
+          <p class="subtitle">A practical first phase for Weeks Drilling & Pump Co.: use the React prototype as the workflow blueprint, build an iPhone-ready technician pilot, and give office staff the right surface to schedule, review, and report.</p>
+        </div>
+        <figure class="mock-frame">
+          <div class="phone-shell" role="img" aria-label="iPhone preview of the Weeks Service Manager To Schedule screen styled after Tyler's prototype">
+            <div class="phone-screen">
+              <div class="phone-notch"></div>
+              <div class="phone-app-header">
+                <div class="phone-brand">
+                  <img src="assets/weeks-logo-crop.png" alt="Weeks Drilling and Pump Co." />
+                  <span class="phone-app-tag">Service<br />Manager</span>
+                </div>
+                <div class="phone-tabs">
+                  <span class="active">To Schedule</span>
+                  <span>Calendar</span>
+                  <span>Review</span>
+                </div>
+              </div>
+              <div class="phone-banner">Demo mode — sample data shown</div>
+              <div class="phone-main">
+                <div class="phone-title">To Schedule</div>
+                <div class="phone-subtitle">Due work grouped by completion month. Assign and book to put it on the calendar.</div>
+                <div class="phone-stats">
+                  <div class="phone-stat red"><strong>3</strong><span>Overdue</span></div>
+                  <div class="phone-stat gold"><strong>1</strong><span>Due This Month</span></div>
+                  <div class="phone-stat blue"><strong>1</strong><span>Booked</span></div>
+                </div>
+                <div class="phone-note">1 call booked — open the Calendar to see them by day and tech.</div>
+                <div class="phone-filter">
+                  <span>Area:</span>
+                  <span class="phone-chip active">All Areas</span>
+                  <span class="phone-chip">Forestville</span>
+                </div>
+                <div class="phone-month">June 2026</div>
+                <div class="phone-section-label">Needs a call to schedule</div>
+                <div class="phone-service-row">
+                  <div>
+                    <b>Russian River RV Park <span class="phone-pill">Overdue</span></b>
+                    <div class="phone-address">11201 Old Redwood Hwy, Healdsburg, CA 95448</div>
+                    <div class="phone-row-meta">Healdsburg · Commercial · (707) 555-0210</div>
+                    <div class="phone-due">Last service: Apr 2, 2026 · Due: June 2026</div>
+                  </div>
+                  <div class="phone-action">Schedule</div>
+                </div>
+                <div class="phone-section-label">No call needed — drop-in</div>
+                <div class="phone-service-row">
+                  <div>
+                    <b>Westside Farms — Ag Well <span class="phone-pill">Overdue</span></b>
+                    <div class="phone-address">4120 Ross Station Rd, Forestville, CA 95436</div>
+                    <div class="phone-row-meta">Forestville · Agricultural</div>
+                    <div class="phone-due">Last service: Dec 15, 2025 · Due: June 2026</div>
+                  </div>
+                  <div class="phone-action">Assign</div>
+                </div>
+              </div>
+              <div class="phone-home"></div>
+            </div>
+          </div>
+          <figcaption class="mock-caption">
+            <span>The prototype becomes the blueprint for the iOS pilot.</span>
+            <span class="status-pill">Ready for pilot</span>
+          </figcaption>
+        </figure>
+        <div class="meta">
+          <div><span>Prepared for</span><strong>Tyler Judson, Phil Thompson + Weeks leadership</strong></div>
+          <div><span>Prepared by</span><strong>57 / Gera Yeremin</strong></div>
+          <div><span>Date</span><strong>July 2026</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">Executive Lens</div>
+        <h2>Start with a focused pilot that can prove value quickly.</h2>
+        <p class="subtitle">Weeks has a clear opportunity to modernize routine service work without changing the core accounting and invoicing system. Because the work touches field notes, photos, customer reports, and water-system records, the next step should be narrow, visible, and testable on real devices.</p>
+        <div class="grid-3">
+          <div class="card"><strong>Keep Sage stable</strong><p>Sage 100 Contractor remains the system of record. This does not replace invoicing, accounting, or the operating core.</p></div>
+          <div class="card"><strong>Start with one workflow</strong><p>The first target is routine water treatment/filter service: scheduling, field capture, review, and customer reporting.</p></div>
+          <div class="card"><strong>Test locally first</strong><p>Launch through TestFlight so Weeks can try the app on iPhones and iPads with real field and office feedback.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">Starting Point</div>
+        <h2>Weeks already has the hardest part: a working process map.</h2>
+        <div class="grid-3">
+          <div class="card"><span class="mini-label">Prototype</span><strong>React workflow model</strong><p>Office and technician views, due scheduling, calendar, visit logging, review workflow, and customer report.</p></div>
+          <div class="card"><span class="mini-label">Pilot direction</span><strong>iOS shell + TestFlight</strong><p>The React app guides the UX and workflows while 57 prepares a testable iPhone-ready pilot.</p></div>
+          <div class="card"><span class="mini-label">Data</span><strong>Import template</strong><p>Accounts, equipment, checklist tasks, and site notes define the initial pilot data boundary.</p></div>
+        </div>
+        <div class="quote">
+          <p>"The best next step is to put the actual workflow onto local devices, learn from real use, and make the next decision with evidence."</p>
+          <small>Based on the call, email thread, prototype, and handoff materials</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">Pilot Rationale</div>
+        <h2>The first build should be easy to evaluate inside the business.</h2>
+        <p class="subtitle">The pilot should give office staff, technicians, and management a shared way to judge whether the workflow is faster, clearer, and easier to support before expanding scope.</p>
+        <div class="grid-3">
+          <div class="card"><span class="mini-label">Scope</span><strong>One service workflow</strong><p>Due work, scheduling, field entry, review, and PDF reporting are enough to test the operating value.</p></div>
+          <div class="card"><span class="mini-label">Testing</span><strong>Real devices</strong><p>TestFlight lets Weeks put the pilot on iPhones and iPads, collect feedback, and decide how far to expand.</p></div>
+          <div class="card"><span class="mini-label">Decision</span><strong>Clear next step</strong><p>Management sees scope, risks, timeline, and price before approving a larger production rollout.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content wide">
+        <div class="label">Workflow Fit</div>
+        <h2>The iOS pilot should follow the exact loop Weeks already described.</h2>
+        <div class="flow">
+          <div class="flow-step"><span>1</span><strong>Due work</strong><p>Month-based recurring service list by area, call type, skip, hold, and seasonal timing.</p></div>
+          <div class="flow-step"><span>2</span><strong>Office schedule</strong><p>Weekly board assigns jobs, dates, and technicians while referencing Sage work order numbers.</p></div>
+          <div class="flow-step"><span>3</span><strong>Technician visit</strong><p>My Day view, site notes, equipment, checklist, readings, samples, photos, repairs, and follow-up.</p></div>
+          <div class="flow-step"><span>4</span><strong>Office review</strong><p>Office approves the visit, cleans report language, and protects access notes from customer output.</p></div>
+          <div class="flow-step"><span>5</span><strong>Customer report</strong><p>Branded PDF report gets sent with or alongside the Sage invoice.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">Phase 1</div>
+        <h2>The first paid phase delivers a working TestFlight pilot.</h2>
+        <div class="phase-card">
+          <div class="phase-top">
+            <div>
+              <div class="phase-kicker">Phase 1</div>
+              <div class="phase-title">TestFlight Pilot Sprint</div>
+              <p class="phase-desc">57 reviews Tyler's React prototype as part of kickoff, converts the core service workflow into an iPhone-ready pilot, and ships it through TestFlight for internal Weeks testing.</p>
+            </div>
+            <div class="phase-price">
+              <div class="price">$18k-$24k</div>
+              <div class="timeline">3-4 weeks</div>
+            </div>
+          </div>
+          <div class="deliverables">
+            <div class="deliverable"><span class="check">✓</span><span>Prototype review and workflow confirmation during kickoff</span></div>
+            <div class="deliverable"><span class="check">✓</span><span>iOS shell guided by the existing React workflow and interface</span></div>
+            <div class="deliverable"><span class="check">✓</span><span>Test accounts, staged service data, photo capture, and report flow for pilot use</span></div>
+            <div class="deliverable"><span class="check">✓</span><span>TestFlight setup, internal testing support, and pilot feedback readout</span></div>
+          </div>
+        </div>
+        <p class="note">The sprint starts by confirming what Tyler already mapped, then moves directly into a testable build.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">Pilot Build</div>
+        <h2>The pilot should test the whole service loop, not every future feature.</h2>
+        <div class="phase-card">
+          <div class="phase-top">
+            <div>
+              <div class="phase-kicker">Pilot Scope</div>
+              <div class="phase-title">Internal Service App</div>
+              <p class="phase-desc">A small but usable app for the initial office and field team: iPhone technician flow, office scheduling/review surface, login, due work, photos, and a customer-facing service report.</p>
+            </div>
+            <div class="phase-price">
+              <div class="price">Included</div>
+              <div class="timeline">Phase 1</div>
+            </div>
+          </div>
+          <div class="deliverables">
+            <div class="deliverable"><span class="check">✓</span><span>iOS shell guided by the existing React prototype</span></div>
+            <div class="deliverable"><span class="check">✓</span><span>Lightweight backend for pilot data, auth, roles, and photo storage</span></div>
+            <div class="deliverable"><span class="check">✓</span><span>Office scheduling, review, accounts, and simple import workflow</span></div>
+            <div class="deliverable"><span class="check">✓</span><span>Technician mobile flow with autosave and retry behavior</span></div>
+            <div class="deliverable"><span class="check">✓</span><span>Customer service report output for review and refinement</span></div>
+            <div class="deliverable"><span class="check">✓</span><span>30-day pilot stabilization and feedback capture</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content wide">
+        <div class="label">Pricing Summary</div>
+        <h2>The first commitment produces working software.</h2>
+        <div class="pricing-table compact">
+          <div class="row head"><div>Item</div><div>Scope</div><div>Timeline</div><div>Price</div></div>
+          <div class="row"><div><strong>Phase 1 Pilot Sprint</strong></div><div>Prototype review, iOS shell, pilot backend, photos, report flow, TestFlight setup</div><div><span class="tag gold">3-4 weeks</span></div><div>$18k-$24k</div></div>
+          <div class="row"><div><strong>Pilot Stabilization</strong></div><div>Bug fixes, device-testing support, feedback capture, and management readout</div><div>30 days</div><div>Included</div></div>
+          <div class="row"><div><strong>Phase 2 Production</strong></div><div>Broader hardening, deeper workflow coverage, offline queue, integrations, dashboards</div><div>Scoped after pilot</div><div>$24k-$40k</div></div>
+          <div class="row total"><div>Recommended first commitment</div><div>Working internal TestFlight pilot</div><div>3-4 weeks</div><div>$18k-$24k</div></div>
+        </div>
+        <p class="note">The first commitment produces a usable version the team can test on real devices.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">Pilot Inputs</div>
+        <h2>Weeks stays in control of the accounts, testers, and operating data.</h2>
+        <div class="grid-4">
+          <div class="card"><strong>Apple access</strong><p>Weeks owns or creates the Apple Developer/App Store Connect account. 57 can be added with the right build/developer access.</p></div>
+          <div class="card"><strong>Pilot team</strong><p>Pick 1-2 office users and 2-3 technicians who can test the service loop and give direct feedback.</p></div>
+          <div class="card"><strong>Staged data first</strong><p>Start with sample or sanitized accounts, tasks, and photos. Access notes stay internal and out of customer reports.</p></div>
+          <div class="card"><strong>Weekly decisions</strong><p>A single Weeks owner keeps scope moving and confirms what should be changed, deferred, or accepted.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">Success Criteria</div>
+        <h2>A successful pilot answers the management questions that matter.</h2>
+        <div class="grid-4">
+          <div class="card"><strong>Field use</strong><p>Can a technician complete assigned visits, notes, readings, photos, and follow-up items without paper?</p></div>
+          <div class="card"><strong>Office use</strong><p>Can office staff schedule, review, approve, and prepare a customer report without duplicating work?</p></div>
+          <div class="card"><strong>Customer output</strong><p>Does the report look professional enough to support the customer relationship and Sage invoice process?</p></div>
+          <div class="card"><strong>Next decision</strong><p>After 30 days, Weeks chooses whether to harden, expand, pause, or change direction based on actual use.</p></div>
+        </div>
+        <p class="note">TestFlight builds are for beta testing and are time-limited, so the stabilization period includes a recommendation for the next build or production path.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">What Is Included</div>
+        <h2>The pilot is focused on daily use, not every possible future workflow.</h2>
+        <div class="grid-3">
+          <div class="card"><strong>Office tools</strong><ul><li>Accounts and service systems</li><li>Due schedule and weekly board</li><li>Visit review and approval</li></ul></div>
+          <div class="card"><strong>Technician tools</strong><ul><li>Mobile My Day view</li><li>Checklists, readings, samples</li><li>Photo capture and follow-up notes</li></ul></div>
+          <div class="card"><strong>Business outputs</strong><ul><li>Customer service report PDF</li><li>Manual Sage work order reference</li><li>Import and backup path</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">Scope Discipline</div>
+        <h2>These are intentionally not in the first pilot unless Weeks chooses them.</h2>
+        <div class="grid-2">
+          <div class="card"><span class="mini-label">Deferred</span><strong>Deep Sage integration</strong><p>The pilot references Sage work order numbers. Automated Sage sync should wait until the workflow proves itself.</p></div>
+          <div class="card"><span class="mini-label">Deferred</span><strong>On-site invoicing or payments</strong><p>Useful later, but not required to solve scheduling, service logging, review, and reporting.</p></div>
+          <div class="card"><span class="mini-label">Scope decision</span><strong>Full offline mode</strong><p>Basic autosave/retry is included. A robust offline queue can be added if field connectivity demands it.</p></div>
+          <div class="card"><span class="mini-label">Scope decision</span><strong>Automated customer emailing</strong><p>The pilot can generate reports for office sending. Automated sending can be added after report language is settled.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content wide">
+        <div class="label">Optional Add-Ons</div>
+        <h2>Useful extras stay separate so the first pilot stays focused.</h2>
+        <div class="pricing-table">
+          <div class="row head"><div>Add-on</div><div>When to choose it</div><div>Timeline impact</div><div>Price</div></div>
+          <div class="row"><div><strong>Full offline queue</strong></div><div>Technicians regularly work with weak or no signal.</div><div>+1-2 weeks</div><div>+$6,000</div></div>
+          <div class="row"><div><strong>Automated email sending</strong></div><div>Office wants reports sent directly from the app after approval.</div><div>+3-5 days</div><div>+$3,500</div></div>
+          <div class="row"><div><strong>Parts catalog + usage</strong></div><div>Track parts used during repairs and service visits.</div><div>+1 week</div><div>+$5,000</div></div>
+          <div class="row"><div><strong>Sage discovery</strong></div><div>Investigate Sage export/import or API options after pilot launch.</div><div>Separate review</div><div>$2,500+</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">After Launch</div>
+        <h2>Weeks owns the accounts, code, and operating data.</h2>
+        <div class="grid-3">
+          <div class="card"><strong>Hosting + database</strong><p>Estimated third-party services: $75-$250/month depending on storage, backups, usage, and report volume.</p></div>
+          <div class="card"><strong>Support after pilot</strong><p>$500-$750/month if Weeks wants monitoring, small fixes, dependency updates, and priority response.</p></div>
+          <div class="card"><strong>Ownership</strong><p>Weeks owns the GitHub repo, Supabase project, hosting account, domain, data, and generated reports.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content">
+        <div class="label">Why This Path Works</div>
+        <h2>The pilot-first path gives Weeks practical control.</h2>
+        <div class="grid-4">
+          <div class="card"><strong>Lower risk</strong><p>Weeks gets answers before scaling the build.</p></div>
+          <div class="card"><strong>Preserves progress</strong><p>Tyler's prototype becomes the pilot blueprint, preserving the workflow thinking Weeks has already done.</p></div>
+          <div class="card"><strong>Cleaner handoff</strong><p>Architecture, accounts, and ownership are designed for long-term maintainability.</p></div>
+          <div class="card"><strong>Field reality</strong><p>The app is judged by whether office staff and technicians actually use it in season.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content wide">
+        <div class="label">How We Get Started</div>
+        <h2>Approve the Phase 1 pilot sprint and put the workflow on real devices.</h2>
+        <div class="closeout">
+          <div class="close-price">
+            <div>
+              <strong>Phase 1 TestFlight Pilot Sprint</strong>
+              <p>Use Tyler's prototype as the blueprint, build the iPhone-ready pilot, and give Weeks a working internal version to test before committing to a larger production rollout.</p>
+            </div>
+            <div>
+              <div class="price">$18k-$24k</div>
+              <div class="timeline">3-4 weeks + 30-day stabilization</div>
+            </div>
+          </div>
+          <div class="close-grid">
+            <div class="close-card"><span>Start</span><strong>Confirm the pilot boundary</strong><p>Pick the first workflow, pilot users, staged account data, and Apple/TestFlight access.</p></div>
+            <div class="close-card"><span>Build</span><strong>Ship the usable iOS pilot</strong><p>Office scheduling/review, technician visit flow, photos, reports, auth, and pilot data.</p></div>
+            <div class="close-card"><span>Decide</span><strong>Read out the next move</strong><p>After internal testing, Weeks chooses what to harden, expand, defer, or stop.</p></div>
+          </div>
+          <div class="close-strip">
+            <div><span>Week 1</span><strong>Workflow confirmation + app setup</strong></div>
+            <div><span>Weeks 2-3</span><strong>iPhone pilot build + office surface</strong></div>
+            <div><span>Week 4</span><strong>TestFlight install + internal testing</strong></div>
+            <div><span>30 days</span><strong>Stabilization + management readout</strong></div>
+          </div>
+        </div>
+        <p class="note">Recommended first commitment: $18k-$24k to produce a working internal pilot, not another planning document.</p>
+      </div>
+    </section>
+
+    <div class="counter" aria-hidden="true">1 / 16</div>
+    <nav class="nav" aria-label="Slide navigation"></nav>
+    <div class="arrows" aria-label="Slide controls">
+      <button class="arrow" id="prev" aria-label="Previous slide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+      </button>
+      <button class="arrow" id="next" aria-label="Next slide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+    <div class="progress" aria-hidden="true"><span></span></div>
+  </main>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const nav = document.querySelector(".nav");
+    const counter = document.querySelector(".counter");
+    const progress = document.querySelector(".progress span");
+    const prev = document.getElementById("prev");
+    const next = document.getElementById("next");
+    let current = 0;
+
+    slides.forEach((_, index) => {
+      const dot = document.createElement("button");
+      dot.className = "dot";
+      dot.type = "button";
+      dot.setAttribute("aria-label", `Go to slide ${index + 1}`);
+      dot.addEventListener("click", () => goTo(index));
+      nav.appendChild(dot);
+    });
+
+    const dots = Array.from(document.querySelectorAll(".dot"));
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length || index === current) return;
+      const direction = index > current ? "forward" : "back";
+      slides[current].classList.remove("active");
+      slides[current].classList.toggle("prev", direction === "forward");
+      current = index;
+      slides[current].classList.remove("prev");
+      slides[current].classList.add("active");
+      update();
+    }
+
+    function update() {
+      dots.forEach((dot, index) => dot.classList.toggle("active", index === current));
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      prev.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+      document.title = `Weeks Service Manager — Proposal (${current + 1}/${slides.length})`;
+    }
+
+    prev.addEventListener("click", () => goTo(current - 1));
+    next.addEventListener("click", () => goTo(current + 1));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") goTo(current + 1);
+      if (event.key === "ArrowLeft" || event.key === "PageUp") goTo(current - 1);
+      if (event.key === "Home") goTo(0);
+      if (event.key === "End") goTo(slides.length - 1);
+    });
+
+    update();
+  </script>
+</body>
+</html>
