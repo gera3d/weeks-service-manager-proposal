@@ -39,7 +39,11 @@
     }
 
     * { box-sizing: border-box; }
-    html, body { height: 100%; overflow: hidden; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
     body {
       margin: 0;
       background: var(--bg);
@@ -54,6 +58,7 @@
       position: relative;
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.62), transparent 18%),
@@ -83,8 +88,26 @@
 
     .content {
       width: min(1120px, 100%);
-      max-height: calc(100vh - 160px);
+      max-height: calc(100vh - 150px);
+      max-height: calc(100dvh - 150px);
+      overflow: auto;
+      overscroll-behavior: contain;
+      padding: 2px 6px 22px;
       text-align: center;
+      scrollbar-gutter: stable both-edges;
+    }
+
+    .content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .content::-webkit-scrollbar-thumb {
+      background: rgba(19, 50, 42, 0.18);
+      border-radius: 999px;
     }
 
     .content.wide { width: min(1220px, 100%); }
@@ -1020,9 +1043,121 @@
       transition: width 220ms ease;
     }
 
+    @media (max-width: 1180px) {
+      .slide { padding: 48px; }
+      .content {
+        max-height: calc(100vh - 128px);
+        max-height: calc(100dvh - 128px);
+      }
+      h1 { font-size: 58px; }
+      h2 { font-size: 46px; }
+      h3 { font-size: 25px; }
+      .hero-copy h1 { font-size: 50px; }
+      .subtitle { font-size: 20px; }
+      .hero-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(330px, 0.78fr);
+        gap: 34px;
+      }
+      .phone-shell { width: min(278px, 27vw); }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .flow-step { min-height: 156px; padding: 20px; }
+      .card { padding: 20px; }
+      .phase-card,
+      .pricing-table,
+      .closeout,
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .flow {
+        margin-top: 26px;
+      }
+      .nav { display: none; }
+    }
+
+    @media (max-height: 760px) {
+      .slide { padding-top: 42px; padding-bottom: 72px; }
+      .content {
+        max-height: calc(100vh - 118px);
+        max-height: calc(100dvh - 118px);
+      }
+      .label { margin-bottom: 16px; }
+      h1 { font-size: 56px; margin-bottom: 18px; }
+      h2 { font-size: 44px; margin-bottom: 14px; }
+      h3 { font-size: 24px; margin-bottom: 9px; }
+      .hero-copy h1 { font-size: 48px; }
+      .subtitle { font-size: 19px; }
+      .meta { margin-top: 26px; padding-top: 18px; }
+      .hero-grid { gap: 28px; }
+      .phone-shell { width: min(252px, 24vw); }
+      .card { padding: 18px; }
+      .card strong { font-size: 17px; }
+      .card p,
+      .card li,
+      .deliverable { font-size: 13px; }
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .flow,
+      .phase-card,
+      .pricing-table,
+      .closeout {
+        margin-top: 22px;
+      }
+      .flow-step { min-height: 136px; padding: 18px; }
+      .flow-step span { margin-bottom: 10px; }
+      .phase-top { padding: 22px 24px; }
+      .phase-title { font-size: 26px; }
+      .phase-desc { font-size: 14px; }
+      .price { font-size: 30px; }
+      .deliverables { padding: 0 24px 24px; }
+      .row { padding: 14px 20px; }
+      .pricing-table.compact .row { padding: 10px 18px; }
+      .close-price { padding: 22px 24px; }
+      .close-price strong { font-size: 25px; }
+    }
+
+    @media (max-height: 680px) {
+      .slide { padding: 30px 42px 68px; }
+      .content {
+        max-height: calc(100vh - 92px);
+        max-height: calc(100dvh - 92px);
+      }
+      h1 { font-size: 50px; }
+      h2 { font-size: 38px; }
+      h3 { font-size: 22px; }
+      .hero-copy h1 { font-size: 42px; }
+      .subtitle { font-size: 17px; }
+      .label { font-size: 11px; margin-bottom: 12px; }
+      .meta strong { font-size: 14px; }
+      .phone-shell { width: min(226px, 22vw); }
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .flow,
+      .phase-card,
+      .pricing-table,
+      .closeout {
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .card { padding: 16px; }
+      .flow-step { min-height: 0; padding: 16px; }
+      .phase-top,
+      .close-price { padding: 18px 20px; }
+      .deliverables { padding: 0 20px 20px; }
+      .row { padding: 12px 18px; }
+      .counter { bottom: 31px; }
+      .arrows { bottom: 16px; }
+    }
+
     @media (max-width: 980px) {
       .slide { padding: 34px; }
-      .content { max-height: calc(100vh - 132px); overflow: auto; padding-bottom: 12px; }
+      .content {
+        max-height: calc(100vh - 108px);
+        max-height: calc(100dvh - 108px);
+        padding-bottom: 28px;
+      }
       h1 { font-size: 48px; }
       h2 { font-size: 40px; }
       .subtitle { font-size: 18px; }
@@ -1034,7 +1169,8 @@
         grid-column: 1;
         grid-row: auto;
       }
-      .mock-frame { max-width: 620px; margin: 0 auto; }
+      .mock-frame { max-width: 620px; margin: 0 auto; justify-self: center; }
+      .phone-shell { width: min(244px, 42vw); }
       .phase-top, .row { grid-template-columns: 1fr; }
       .phase-price { text-align: left; }
       .deliverables { grid-template-columns: 1fr; }
@@ -1053,22 +1189,37 @@
         overflow-x: hidden;
         overflow-y: auto;
       }
-      .deck { height: auto; min-height: 100vh; overflow: visible; }
+      .deck { height: auto; min-height: 100vh; min-height: 100dvh; overflow: visible; }
       .slide {
         position: relative;
         display: none;
         min-height: 100vh;
+        min-height: 100dvh;
         padding: 28px 20px 112px;
       }
       .slide.active { display: flex; }
-      .content { max-height: none; overflow: visible; }
-      .label { font-size: 10px; letter-spacing: 1px; padding: 7px 12px; }
+      .content {
+        max-height: none;
+        overflow: visible;
+        padding: 0;
+        scrollbar-gutter: auto;
+      }
+      .label { font-size: 10px; letter-spacing: 1px; padding: 0 0 0 10px; }
       h1 { font-size: 36px; }
       h2 { font-size: 32px; }
       h3 { font-size: 23px; }
       .hero-copy h1 { font-size: 34px; }
       .subtitle { font-size: 16px; }
       .meta { justify-content: flex-start; text-align: left; }
+      .card { padding: 18px; }
+      .quote { padding: 20px; }
+      .quote p { font-size: 18px; }
+      .phase-top,
+      .close-price { padding: 20px; }
+      .deliverables { padding: 0 20px 20px; }
+      .phase-title { font-size: 25px; }
+      .price { font-size: 28px; }
+      .row { gap: 8px; padding: 14px 16px; }
       .phone-shell {
         width: min(198px, 51vw);
       }
@@ -1085,10 +1236,20 @@
       .phone-service-row { padding: 10px; grid-template-columns: 1fr; }
       .phone-action { width: fit-content; }
       .mock-caption { display: none; }
-      .arrows { right: 18px; bottom: 20px; gap: 8px; }
-      .arrow { width: 48px; height: 48px; }
+      .arrows {
+        top: 16px;
+        right: 16px;
+        bottom: auto;
+        gap: 8px;
+      }
+      .arrow {
+        width: 42px;
+        height: 42px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 6px 18px rgba(19, 50, 42, 0.12);
+      }
       .arrow:disabled { display: none; }
-      .counter { left: 20px; bottom: 37px; }
+      .counter { display: none; }
       .flow-step { min-height: 0; }
     }
 
@@ -1428,7 +1589,6 @@
             <div><span>30 days</span><strong>Stabilization + management readout</strong></div>
           </div>
         </div>
-        <p class="note">Recommended first commitment: $18k-$24k to produce a working internal pilot, deployed for TestFlight through 57 and delivered with source.</p>
       </div>
     </section>
 
